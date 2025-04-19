@@ -2,12 +2,7 @@
 FROM debian:stable-slim
 
 # Build arguments to set environment variables at build time
-ARG DEF_VNC_SCREEN=0
-ARG DEF_VNC_DISPLAY=0
-ARG DEF_VNC_RESOLUTION=1280x720
-ARG DEF_VNC_PASSWORD=money4band
-ARG DEF_VNC_PORT=5900
-ARG DEF_NOVNC_WEBSOCKIFY_PORT=6080
+ARG DEF_XRDP_PORT=3389
 ARG DEF_STARTING_WEBSITE_URL=https://www.google.com
 ARG DEF_LANG=en_US.UTF-8
 ARG DEF_LC_ALL=C.UTF-8
@@ -18,13 +13,7 @@ ARG DEF_AUTO_START_XTERM=true
 ARG DEF_DEBIAN_FRONTEND=noninteractive
 
 # Set environment variables with default values
-ENV DISPLAY=:${DEF_VNC_DISPLAY}.${DEF_VNC_SCREEN} \
-    VNC_SCREEN=${DEF_VNC_SCREEN} \
-    VNC_DISPLAY=${DEF_VNC_DISPLAY} \
-    VNC_RESOLUTION=${DEF_VNC_RESOLUTION} \
-    VNC_PASSWORD=${DEF_VNC_PASSWORD} \
-    VNC_PORT=${DEF_VNC_PORT} \
-    NOVNC_WEBSOCKIFY_PORT=${DEF_NOVNC_WEBSOCKIFY_PORT} \
+ENV \
     STARTING_WEBSITE_URL=${DEF_STARTING_WEBSITE_URL} \
     LANG=${DEF_LANG} \
     LC_ALL=${DEF_LC_ALL} \
@@ -32,7 +21,8 @@ ENV DISPLAY=:${DEF_VNC_DISPLAY}.${DEF_VNC_SCREEN} \
     CUSTOM_ENTRYPOINTS_DIR=${DEF_CUSTOM_ENTRYPOINTS_DIR} \
     AUTO_START_BROWSER=${DEF_AUTO_START_BROWSER} \
     AUTO_START_XTERM=${DEF_AUTO_START_XTERM} \
-    DEBIAN_FRONTEND=${DEF_DEBIAN_FRONTEND}
+    DEBIAN_FRONTEND=${DEF_DEBIAN_FRONTEND} \
+    XRDP_PORT=${DEF_XRDP_PORT}
 
 # Install necessary packages and setup noVNC
 RUN set -e; \
@@ -42,10 +32,7 @@ RUN set -e; \
     tini \
     supervisor \
     bash \
-    xvfb \
-    x11vnc \
-    novnc \
-    websockify \
+    xrdp \
     fluxbox \
     xterm \
     nano \
@@ -67,8 +54,8 @@ COPY browser_conf/chromium.conf /app/conf.d/
 # Make the entrypoint scripts executable
 RUN chmod +x /usr/local/bin/base_entrypoint.sh /usr/local/bin/customizable_entrypoint.sh
 
-# Expose the standard VNC and noVNC ports
-EXPOSE ${VNC_PORT} ${NOVNC_WEBSOCKIFY_PORT}
+# Expose the XRDP port
+EXPOSE ${XRDP_PORT}
 
 # Set tini as the entrypoint and the custom script as the command
 ENTRYPOINT ["/usr/bin/tini", "--"]

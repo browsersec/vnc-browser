@@ -15,9 +15,11 @@ ARG DEF_CUSTOMIZE=false
 ARG DEF_CUSTOM_ENTRYPOINTS_DIR=/app/custom_entrypoints_scripts
 ARG DEF_AUTO_START_BROWSER=true
 ARG DEF_AUTO_START_XTERM=true
+ARG DEF_XRDP_PORT=3389
 
 # Set environment variables with default values
-ENV DISPLAY=:${DEF_VNC_DISPLAY}.${DEF_VNC_SCREEN} \
+ENV \
+    DISPLAY=:${DEF_VNC_DISPLAY}.${DEF_VNC_SCREEN} \
     VNC_SCREEN=${DEF_VNC_SCREEN} \
     VNC_DISPLAY=${DEF_VNC_DISPLAY} \
     VNC_RESOLUTION=${DEF_VNC_RESOLUTION} \
@@ -30,7 +32,8 @@ ENV DISPLAY=:${DEF_VNC_DISPLAY}.${DEF_VNC_SCREEN} \
     CUSTOMIZE=${DEF_CUSTOMIZE} \
     CUSTOM_ENTRYPOINTS_DIR=${DEF_CUSTOM_ENTRYPOINTS_DIR} \
     AUTO_START_BROWSER=${DEF_AUTO_START_BROWSER} \
-    AUTO_START_XTERM=${DEF_AUTO_START_XTERM} 
+    AUTO_START_XTERM=${DEF_AUTO_START_XTERM} \
+    XRDP_PORT=${DEF_XRDP_PORT}
 
 # Install necessary packages and setup noVNC
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
@@ -41,15 +44,12 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
     tini \
     supervisor \
     bash \
-    xvfb \
-    x11vnc \
-    novnc \
-    websockify \
+    xrdp \
     fluxbox \
     xterm \
     nano \
     firefox && \
-    ln -s /usr/share/novnc/vnc_lite.html /usr/share/novnc/index.html 
+    ln -s /usr/share/novnc/vnc_lite.html /usr/share/novnc/index.html
 
 # Create necessary directories for supervisor and custom entrypoints
 RUN mkdir -p /etc/supervisor.d /app/conf.d ${DEF_CUSTOM_ENTRYPOINTS_DIR}
@@ -65,7 +65,7 @@ COPY browser_conf/firefox.conf /app/conf.d/
 RUN chmod +x /usr/local/bin/base_entrypoint.sh /usr/local/bin/customizable_entrypoint.sh
 
 # Expose the standard VNC and noVNC ports
-EXPOSE ${VNC_PORT} ${NOVNC_WEBSOCKIFY_PORT}
+EXPOSE ${XRDP_PORT}
 
 # Set tini as the entrypoint and the custom script as the command
 ENTRYPOINT ["/sbin/tini", "--"]
