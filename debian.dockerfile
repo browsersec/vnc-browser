@@ -47,7 +47,8 @@ RUN mkdir -p /var/log/supervisor
 
 # Copy configuration files
 COPY supervisord.conf /etc/supervisor.d/supervisord.conf
-COPY conf.d/ /app/conf.d/
+# only bring in xrdp (and xterm) programs, drop VNC configs
+COPY conf.d/xrdp.conf conf.d/xterm.conf /app/conf.d/
 COPY base_entrypoint.sh customizable_entrypoint.sh /usr/local/bin/
 COPY browser_conf/chromium.conf /app/conf.d/
 
