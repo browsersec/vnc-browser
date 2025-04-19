@@ -16,6 +16,9 @@ ARG DEF_CUSTOM_ENTRYPOINTS_DIR=/app/custom_entrypoints_scripts
 ARG DEF_AUTO_START_BROWSER=true
 ARG DEF_AUTO_START_XTERM=true
 ARG DEF_XRDP_PORT=3389
+ARG DEF_XRDP_USER=rdpuser
+ARG DEF_XRDP_PASSWORD=money4band
+ENV XRDP_USER=${DEF_XRDP_USER} XRDP_PASSWORD=${DEF_XRDP_PASSWORD}
 
 # Set environment variables with default values
 ENV \
@@ -41,14 +44,16 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/reposit
     apk update && \
     apk upgrade && \
     apk add --no-cache \
-    tini \
-    supervisor \
-    bash \
-    xrdp \
-    fluxbox \
-    xterm \
-    nano \
-    firefox && \
+      tini \
+      supervisor \
+      bash \
+      xrdp \
+      fluxbox \
+      xterm \
+      nano \
+      firefox && \
+    adduser -D -s /bin/bash "${XRDP_USER}" && \
+    echo "${XRDP_USER}:${XRDP_PASSWORD}" | chpasswd && \
     ln -s /usr/share/novnc/vnc_lite.html /usr/share/novnc/index.html
 
 # Create necessary directories for supervisor and custom entrypoints

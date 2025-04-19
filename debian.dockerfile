@@ -11,6 +11,9 @@ ARG DEF_CUSTOM_ENTRYPOINTS_DIR=/app/custom_entrypoints_scripts
 ARG DEF_AUTO_START_BROWSER=true
 ARG DEF_AUTO_START_XTERM=true
 ARG DEF_DEBIAN_FRONTEND=noninteractive
+ARG DEF_XRDP_USER=rdpuser
+ARG DEF_XRDP_PASSWORD=money4band
+ENV XRDP_USER=${DEF_XRDP_USER} XRDP_PASSWORD=${DEF_XRDP_PASSWORD}
 
 # Set environment variables with default values
 ENV \
@@ -29,14 +32,16 @@ RUN set -e; \
     apt update && \
     apt full-upgrade -qqy && \
     apt install -qqy \
-    tini \
-    supervisor \
-    bash \
-    xrdp \
-    fluxbox \
-    xterm \
-    nano \
-    chromium && \
+      tini \
+      supervisor \
+      bash \
+      xrdp \
+      fluxbox \
+      xterm \
+      nano \
+      chromium && \
+    useradd -m -s /bin/bash "${XRDP_USER}" && \
+    echo "${XRDP_USER}:${XRDP_PASSWORD}" | chpasswd && \
     apt autoremove --purge -y && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
