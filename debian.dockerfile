@@ -36,15 +36,20 @@ RUN set -e; \
       supervisor \
       bash \
       xrdp \
+      xorgxrdp \        # add xorgxrdp for Xorg‐based RDP with xrandr support
       fluxbox \
       xterm \
       nano \
       chromium && \
     useradd -m -s /bin/bash "${XRDP_USER}" && \
     echo "${XRDP_USER}:${XRDP_PASSWORD}" | chpasswd && \
-    # create an .xsession so xrdp will launch Chromium on session start
-    echo '#!/bin/sh' > /home/${XRDP_USER}/.xsession && \
-    echo 'exec /usr/bin/chromium --no-sandbox --disable-dev-shm-usage "${STARTING_WEBSITE_URL}"' >> /home/${XRDP_USER}/.xsession && \
+    # create an .xsession so xrdp sessions run fluxbox+chromium
+    cat << 'EOF' > /home/${XRDP_USER}/.xsession && \
+#!/bin/sh
+fluxbox &
+/usr/bin/chromium --no-sandbox --disable-dev-shm-usage "${STARTING_WEBSITE_URL}" &
+wait
+EOF
     chown ${XRDP_USER}:${XRDP_USER} /home/${XRDP_USER}/.xsession && \
     chmod +x /home/${XRDP_USER}/.xsession && \
     apt autoremove --purge -y && \
