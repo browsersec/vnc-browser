@@ -44,6 +44,8 @@ RUN set -e; \
     echo "${XRDP_USER}:${XRDP_PASSWORD}" | chpasswd && \
     # create an .xsession so xrdp will launch Chromium on session start
     echo '#!/bin/sh' > /home/${XRDP_USER}/.xsession && \
+    echo 'exec fluxbox &' >> /home/${XRDP_USER}/.xsession && \
+    echo 'sleep 1' >> /home/${XRDP_USER}/.xsession && \
     echo 'exec /usr/bin/chromium --no-sandbox --disable-dev-shm-usage "${STARTING_WEBSITE_URL}"' >> /home/${XRDP_USER}/.xsession && \
     chown ${XRDP_USER}:${XRDP_USER} /home/${XRDP_USER}/.xsession && \
     chmod +x /home/${XRDP_USER}/.xsession && \
