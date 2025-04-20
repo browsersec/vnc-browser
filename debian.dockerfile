@@ -36,7 +36,7 @@ RUN set -e; \
       supervisor \
       bash \
       xrdp \
-      xorgxrdp \        # add xorgxrdp for Xorg‐based RDP with xrandr support
+      xorgxrdp \
       fluxbox \
       xterm \
       nano \
